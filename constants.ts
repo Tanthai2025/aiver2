@@ -15,7 +15,7 @@ export const GOOGLE_SHEET_CSV_URL: string = 'https://docs.google.com/spreadsheet
 // Việc để lộ API Key ở phía client (trên trình duyệt) có thể không an toàn.
 // Bất kỳ ai cũng có thể xem được key này bằng cách xem mã nguồn trang web.
 // Hãy đảm bảo bạn đã cấu hình các biện pháp bảo vệ cho API Key trong Google AI Studio.
-export const API_KEY: string = 'YOUR_GOOGLE_AI_API_KEY_HERE';
+export const API_KEY: string = 'AIzaSyCW1QYEFZVIn8rYLMBeIWiF0uniX-31ArY';
 
 // Mẫu chỉ dẫn hệ thống cho AI.
 // {knowledge_base} sẽ được tự động thay thế bằng dữ liệu từ Google Sheet.
