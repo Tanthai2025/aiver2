@@ -1,18 +1,12 @@
+
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
-import { GOOGLE_SHEET_CSV_URL, SYSTEM_INSTRUCTION_TEMPLATE } from '../constants';
-
-// --- HƯỚNG DẪN THÊM API KEY ---
-// 1. Lấy API Key của bạn từ Google AI Studio (https://aistudio.google.com/app/apikey).
-// 2. Dán API Key của bạn vào đây, thay thế cho 'YOUR_API_KEY_HERE'.
-// QUAN TRỌNG: KHÔNG chia sẻ mã nguồn này công khai khi đã có API Key của bạn.
-const API_KEY = 'AIzaSyCW1QYEFZVIn8rYLMBeIWiF0uniX-31ArY';
-
+import { GOOGLE_SHEET_CSV_URL, SYSTEM_INSTRUCTION_TEMPLATE, API_KEY } from '../constants';
 
 let ai: GoogleGenAI | null = null;
 
 /**
  * Lazily initializes and returns the GoogleGenAI client.
- * Throws an error if the API key is not configured.
+ * Throws an error if the API key is not configured in constants.ts.
  * @returns The initialized GoogleGenAI client.
  */
 const getAiClient = (): GoogleGenAI => {
@@ -20,14 +14,21 @@ const getAiClient = (): GoogleGenAI => {
         return ai;
     }
 
-    // Check if the API key is provided in the constant above.
-    if (!API_KEY || API_KEY === 'YOUR_API_KEY_HERE') {
-        const errorMessage = "API Key chưa được cấu hình. Vui lòng thêm API Key vào file services/geminiService.ts.";
-        const developerNote = "Để ứng dụng hoạt động, bạn cần cung cấp một Google AI API Key hợp lệ. Mở file `services/geminiService.ts` và thay thế giá trị của hằng số `API_KEY` bằng khóa của bạn.";
+    // Check if the API key has been set in the constants.ts file.
+    if (!API_KEY || API_KEY === 'AIzaSyCW1QYEFZVIn8rYLMBeIWiF0uniX-31ArY') {
+        const errorMessage = `LỖI: API Key chưa được cung cấp.
 
-        console.error(`[AI Service Error] ${errorMessage}\n\n[Developer Note] ${developerNote}`);
+HƯỚNG DẪN CẤU HÌNH:
+1.  Mở tệp 'constants.ts' trong dự án của bạn.
+2.  Tìm dòng: export const API_KEY = 'YOUR_GOOGLE_AI_API_KEY_HERE';
+3.  Thay thế 'YOUR_GOOGLE_AI_API_KEY_HERE' bằng API Key của Google AI của bạn.
+4.  Lưu tệp và tải lại ứng dụng.
 
-        // This error is caught by the UI to show a user-friendly message.
+**Cảnh báo bảo mật:** Việc để lộ API key trên client có thể gây rủi ro. Hãy đảm bảo bạn đã giới hạn quyền sử dụng key này trong Google AI Studio.`;
+
+        console.error("[AI Service Error] API Key is not configured in constants.ts.");
+
+        // This error is caught by the UI to show a user-friendly, detailed guide.
         throw new Error(errorMessage);
     }
     
@@ -71,9 +72,9 @@ const parseCsvToKnowledgeBase = (csvText: string): string => {
  * @returns The formatted knowledge base string.
  */
 const fetchKnowledgeBase = async (): Promise<string> => {
-    if (!GOOGLE_SHEET_CSV_URL || GOOGLE_SHEET_CSV_URL === 'URL_GOOGLE_SHEET_CSV_CUA_BAN_O_DAY') {
+    if (!GOOGLE_SHEET_CSV_URL || GOOGLE_SHEET_CSV_URL.includes('URL_GOOGLE_SHEET_CSV_CUA_BAN_O_DAY')) {
         console.warn("Google Sheet URL is not configured.");
-        return "Kiến thức chưa được cung cấp. Vui lòng liên hệ quản trị viên để cập nhật thông tin.";
+        throw new Error("Chưa cấu hình URL cho Google Sheet. Vui lòng cập nhật đường dẫn trong tệp constants.ts.");
     }
 
     try {
@@ -88,7 +89,8 @@ const fetchKnowledgeBase = async (): Promise<string> => {
         return parseCsvToKnowledgeBase(csvText);
     } catch (error) {
         console.error("Error fetching or parsing Google Sheet:", error);
-        return "Lỗi khi tải dữ liệu kiến thức từ Google Sheet.";
+        // Throw an error that can be caught and displayed by the UI.
+        throw new Error("Không thể tải dữ liệu kiến thức từ Google Sheet. Vui lòng kiểm tra lại đường dẫn và chắc chắn rằng trang tính đã được 'Xuất bản lên web'.");
     }
 };
 

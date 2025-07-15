@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import type { Chat } from '@google/genai';
 import { Message, Role } from '../types';
@@ -8,7 +9,7 @@ interface ChatbotProps {
   onClose: () => void;
 }
 
-const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
+export const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +22,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
     const initChat = async () => {
         setIsLoading(true);
         try {
-            // createChat is now async to fetch the knowledge base
+            // createChat is now async and can throw errors (e.g., from fetching knowledge base)
             const newChat = await createChat();
             setChatSession(newChat);
             // A more natural initial prompt to get a greeting based on the new system instructions.
@@ -29,7 +30,9 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
             setMessages([{ role: Role.MODEL, content: greeting }]);
         } catch (error) {
             console.error("Failed to initialize chat:", error);
-            setMessages([{ role: Role.MODEL, content: "Xin chào, ECO Bot không sẵn sàng vào lúc này. Vui lòng thử lại sau." }]);
+            // Display a more specific error message to the user
+            const errorMessage = error instanceof Error ? error.message : "Xin chào, ECO Bot không sẵn sàng vào lúc này. Vui lòng thử lại sau.";
+            setMessages([{ role: Role.MODEL, content: errorMessage }]);
         } finally {
             setIsLoading(false);
         }
@@ -41,7 +44,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
+  
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedInput = inputValue.trim();
@@ -66,11 +69,13 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
       setIsLoading(false);
     }
   };
-
+  
   return (
-    <div className="w-80 h-[28rem] sm:w-96 sm:h-[32rem] bg-white rounded-xl shadow-2xl flex flex-col transition-all duration-300 ease-in-out">
+    <div className="fixed inset-0 z-50 w-screen h-screen bg-white shadow-2xl flex flex-col pointer-events-auto">
       {/* Header */}
-      <div className="bg-teal-700 text-white p-4 rounded-t-xl flex justify-between items-center">
+      <div 
+        className="bg-teal-700 text-white p-4 flex justify-between items-center"
+      >
         <h3 className="font-bold text-lg">ECO Bot</h3>
         <button
           onClick={onClose}
@@ -125,7 +130,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
       </div>
 
       {/* Input Form */}
-      <div className="border-t border-gray-200 p-3 bg-white rounded-b-xl">
+      <div className="border-t border-gray-200 p-3 bg-white">
         <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
           <input
             type="text"
@@ -148,5 +153,3 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
     </div>
   );
 };
-
-export default Chatbot;
