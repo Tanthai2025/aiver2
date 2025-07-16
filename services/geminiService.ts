@@ -15,7 +15,7 @@ const getAiClient = (): GoogleGenAI => {
     }
 
     // Check if the API key has been set in the constants.ts file.
-    if (!API_KEY || API_KEY === 'AIzaSyCW1QYEFZVIn8rYLMBeIWiF0uniX-31ArY') {
+    if (!API_KEY || API_KEY === 'API_KEYAPI_KEY') {
         const errorMessage = `LỖI: API Key chưa được cung cấp.
 
 HƯỚNG DẪN CẤU HÌNH:
